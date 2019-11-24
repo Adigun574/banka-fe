@@ -28,6 +28,15 @@
         <small class="text-danger" v-if="passwordsMatch">Passwords do not match</small><br>
         <button type="subimt" class="btn signup" v-on:click="createUser">Signup</button>
         </div>
+
+
+        <b-toast id="example-toast" title="BootstrapVue" static no-auto-hide>
+            User has been created
+        </b-toast>  
+        <b-toast id="example-toast2" title="BootstrapVue" static no-auto-hide>
+            Oops!!! Something went wrong
+        </b-toast>            
+
     </div>
     
 </template>
@@ -89,14 +98,16 @@ import axios from 'axios'
                             console.log(newUser)
                             this.newUser.imgUrl=res.data.secure_url
                             this.$http.post(url,newUser)
-                            .then(data=>{console.log(data)})
+                            .then(data=>{console.log(data)
+                                $bvToast.show('example-toast')
                             })
-                        .catch(err=>{console.log(err)})
-
-                        // let url = 'http://localhost:3000/users/add'
-                        // console.log(newUser)
-                        // this.$http.post(url,newUser)
-                        // .then(data=>{console.log(data)})
+                            .catch(err=>{
+                                $bvToast.show('example-toast2')
+                            })
+                        })
+                        .catch(err=>{console.log(err)
+                            $bvToast.show('example-toast2')
+                        })
                     }
                     else{
                       this.$http.post(url,newUser)
@@ -105,7 +116,6 @@ import axios from 'axios'
                 }
                 else{
                     this.passwordsMatch=true
-                    console.log("passwords do not match")
                 }
              
             },

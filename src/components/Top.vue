@@ -21,11 +21,11 @@
                     </b-nav-form>
 
                     <b-nav-item-dropdown text="User" right>
-                    <b-dropdown-item><router-link to="/login" exact>Login</router-link></b-dropdown-item>
+                    <b-dropdown-item><router-link to="/login" exact class="links">Login</router-link></b-dropdown-item>
                     <hr>
-                    <b-dropdown-item><router-link to="/signup" exact>Signup</router-link></b-dropdown-item>
-                    <hr>
-                    <b-dropdown-item v-on:click="logout">Logout</b-dropdown-item>
+                    <!-- <b-dropdown-item><router-link to="/signup" exact class="links">Create User</router-link></b-dropdown-item> -->
+                    <!-- <hr> -->
+                    <b-dropdown-item v-on:click="logout"><router-link to="/" exact class="links">Logout</router-link></b-dropdown-item>
                     </b-nav-item-dropdown>
 
                     <!-- <b-nav-item-dropdown right> -->
@@ -37,6 +37,8 @@
                     <b-dropdown-item href="#">Profile</b-dropdown-item>
                     <b-dropdown-item href="#">Sign Out</b-dropdown-item>
                     </b-nav-item-dropdown> -->
+                        <b-nav-item><router-link to="/customersignup" exact><span class="navitem">Customer signup</span></router-link></b-nav-item>
+                        <b-nav-item><router-link to="/signup" exact><span class="navitem">Create User</span></router-link></b-nav-item>
                         <b-nav-item><router-link to="/account" exact><span class="navitem">Create Account</span></router-link></b-nav-item>
                         <b-nav-item><router-link to="/allaccounts" exact><span class="navitem">All Accounts</span></router-link></b-nav-item>
                 </b-navbar-nav>
@@ -65,7 +67,10 @@
             logout(){
                 localStorage.removeItem('user')
                 this.$router.push('/')
-            }
+                this.getCredentials()
+            },
+        },
+        created(){
         }
     }
 
@@ -79,8 +84,11 @@
         display:inline-block;
         margin-right:5px
     } */
+    .router-link{
+        text-decoration: none !important
+    }
     .router-link-active{
-        background-color:rgb(112, 112, 112);
+        background-color:#6C757D;
         color:white;
         padding:6px 5px;
         border-radius:5px;
@@ -88,7 +96,17 @@
     }
     .navitem{
         color:white;
-        text-decoration:none
+        text-decoration:none !important
+    }
+    .links{
+        color:#17A2B8 !important
+    }
+    .links:hover{
+        color:white !important;
+        background-color:#17A2B8 !important;
+        padding:5px;
+        text-decoration: none !important;
+        border-radius:5px
     }
 </style>
     

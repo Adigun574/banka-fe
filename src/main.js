@@ -15,6 +15,9 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import feather from 'vue-icon'
 import axios from 'axios'
+import Donut from 'vue-css-donut-chart';
+import 'vue-css-donut-chart/dist/vcdonut.css';
+
 
 
 Vue.config.productionTip = false
@@ -22,6 +25,7 @@ Vue.config.productionTip = false
 Vue.use(VueRouter)
 Vue.use(VueResource)
 Vue.use(BootstrapVue)
+Vue.use(Donut)
 //Vue.use(axios)
 //Vue.prototype.$http = axios
 Vue.use(feather, 'v-icon')

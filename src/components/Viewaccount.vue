@@ -1,13 +1,18 @@
 <template>
     <div>
-        <div class="accountdetails">
-            <b class="key">Account Number: </b><b class="details">{{account.accountnumber}}</b> || 
-            <b class="key">Account Name: </b><b class="details">{{account.owner}}</b><br>
-            <b class="key">Account Balance: </b><b class="details">N{{account.balance}}.00</b>  ||   
-            <b class="key">Type: </b><b class="details">{{account.type}}</b><br>
-            <b class="key">Status: </b><b class="details">{{account.status}}</b>  ||
-            <b class="key">Date-Time Created: </b><b class="details">{{account.createdon}}</b><br>
-        </div>
+        <div style="display:flex; justify-content:center" class="accountdetails">
+            <img v-bind:src="account.imgurl" width="100px" height="100px" class="ml-2">
+            <div style="width:100%; margin-left:auto; margin-right:auto">
+                <b class="key">Account Number: </b><b class="details">{{account.accountnumber}}</b> || 
+                <b class="key">Account Name: </b><b class="details">{{account.owner}}</b><br>
+                <b class="key">Account Balance: </b><b class="details">N{{account.balance}}.00</b>  ||   
+                <b class="key">Type: </b><b class="details">{{account.type}}</b><br>
+                <b class="key">Status: </b><b class="details">{{account.status}}</b>  ||
+                <b class="key">Date-Time Created: </b><b class="details">{{account.createdon}}</b><br>
+                <b-button v-b-modal.modal-center class="btn btn-danger">Delete this account</b-button>
+
+            </div>
+        </div>   
         <div>
             <b-tabs content-class="mt-3" fill
                 active-nav-item-class="activetabtitle"
@@ -75,13 +80,21 @@
         </div>
 
                 
-
-        
+    <!--delete modal-->
+        <div>
+            <b-modal id="modal-center" centered title="DeleteAccount!!!">
+            <p class="my-4">Are you sure you want to delete this account?</p>
+            <div slot="modal-footer">
+                <div style="display:flex"><button @click="deleteAccount" class="btn btn-danger  mr-2" style="width:13.5em; float:left">Yes</button>
+                <button @click="hideModal" class="btn btn-secondary ml-2" style="width:13.5em; float-right">No</button></div>
+            </div>
+            </b-modal>
+        </div>
         
         
         <div>
   
-</div>
+        </div>
     </div>
 </template>
 
@@ -141,7 +154,25 @@ export default {
            let url = 'http://localhost:3000/transactions/add'
                     this.$http.post(url,transaction)
                     .then(data=>{console.log(data)})
-       } 
+       },
+       deleteAccount(){
+         let url = 'http://localhost:3000/accounts/deleteaccount'
+         let accounttobedeleted ={
+             id:this.account.id
+         }
+         this.$http.post(url,accounttobedeleted)
+         .then(data=>{
+            console.log(data)
+            this.$router.push('/allaccounts')
+            this.$bvModal.hide('modal-center')
+         })
+         .catch(err=>{
+             console.log(err)
+         })  
+       },
+       hideModal() {
+        this.$bvModal.hide('modal-center')
+      }
     },
     beforeCreate(){
         let id = this.$route.params.id

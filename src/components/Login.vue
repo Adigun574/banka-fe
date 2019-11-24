@@ -31,8 +31,10 @@ export default {
     data(){
         return{
             user:{
-                email:'test',
-                password:'7030'
+                // email:'test',
+                // password:'7030'
+                email:'',
+                password:''
             },
             incorrectCredential:false,
             forgotPasswordEmail:''
@@ -45,7 +47,7 @@ export default {
                     email:this.user.email,
                     password:this.user.password
                 }
-                console.log(user)
+                //console.log(user)
                 let url = 'http://localhost:3000/users/login'
                     this.$http.post(url,user)
                     .then(data=>{console.log(data)

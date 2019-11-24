@@ -1,7 +1,7 @@
 <template>
     <div class="body">
         <div class="content">
-            <h1 class="banka"><strong>BANKA</strong></h1>
+            <h3 class="banka"><strong>BANKA</strong></h3>
             <h3 class="text">{{text}}<span class="cursor">|</span></h3>
             <h3 class="login" v-on:click="goToLogin"><strong>Login <v-icon name="send" style="width:20px; height:20px"></v-icon></strong></h3>
        </div>
@@ -43,7 +43,7 @@ export default {
 .content {
   height: 10vh;
   position: relative;
-  top:20vh
+  top:15vh
 }
 
 .form {
@@ -69,10 +69,8 @@ export default {
   z-index: -1;   
 }
 .banka{
-    font-size: 5rem;
+    font-size: 2.5rem;
     color:#17A2B8;
-    /* background-color:#17A2B8; */
-    /* border-radius:10px; */
     width:5em;
     margin-left:auto;
     margin-right:auto;
@@ -113,7 +111,8 @@ export default {
     color:black;
     width:30vw;
     margin:1em auto;
-    text-shadow: 2px 2px 1px white
+    text-shadow: 2px 2px 1px white;
+    text-align:center;
 }
 
 @keyframes blink{
