@@ -4,7 +4,6 @@
             <div class="form">
                 <img src="../assets/avatar.png" v-if="!item.imageUrl" width="150px" height="150px">
                 <img v-if="item.imageUrl" :src="item.imageUrl" width="150px" height="150px" style="border-radius:50%"/>
-                <!-- <img src="../assets/wallet.png" width="250px" height="150px"> -->
                 <div class="form-group">
                     <input class="form-control" type="text" v-model="account.firstname" placeholder="Firstname">
                 </div> 
@@ -24,21 +23,12 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <!-- <label class="form-label">Select Account Picture</label><br> -->
                     <input type="file" accept="image/*" @change="selectImage"/>
                 </div>
+                <div class="loader" v-if="showLoader"></div>
                 <button type="subimt" class="btn create" v-on:click="post">Create</button>
             </div>
-        </div> 
-
-        <b-toast id="example-toast" title="BootstrapVue" static no-auto-hide>
-            Account has been created
-        </b-toast>  
-        <b-toast id="example-toast2" title="BootstrapVue" static no-auto-hide>
-            Oops!!! Something went wrong
-        </b-toast>            
-
-        
+        </div>       
 
 
     </div>
@@ -47,31 +37,29 @@
 
 <script>
 import axios from 'axios'
+const api = require('../app')
     export default{
         data(){
             return{
                 account:{
-                    // firstname:"Ibrahim",
-                    // lastname:"Adigun",
-                    // openingbalance:"100000",
-                    // type:"Savings",
-                    // email:"adigunibrahim574@gmail.com"
                     firstname:"",
                     lastname:"",
                     openingbalance:"",
-                    type:"",
+                    type:"Savings",
                     email:""
                 },
                 item:{
                     image : null,
                     imageUrl: null
                 },
-                imgUrl:null
+                imgUrl:null,
+                showLoader:false
 
             }
         },
         methods:{
             post(){
+             this.showLoader=true
              let account = {
                  firstname:this.account.firstname,
                  lastname:this.account.lastname,
@@ -80,8 +68,9 @@ import axios from 'axios'
                  email:this.account.email,
                  imgUrl:null
              }
-             console.log(account)
-             let url = 'http://localhost:3000/accounts/add'
+             //console.log(account)
+            //  let url = 'http://localhost:3000/accounts/add'
+            let url = `${api}accounts/add`
              if(this.image){
                  //image upload
                 const CLOUDINARY_URL="https://api.cloudinary.com/v1_1/dk0ydrw94/upload"
@@ -98,41 +87,58 @@ import axios from 'axios'
                     data:formData
                 })
                 .then(res=>{
-                    //this.imgUrl=res.data.secure_url
                     account.imgUrl=res.data.secure_url
-                    console.log(res)
-                    console.log(account)
-                    console.log("image url",res.data.secure_url)                    
+                    //console.log(res)
+                    //console.log(account)
+                    //console.log("image url",res.data.secure_url)                    
                     this.$http.post(url,account)
-                    .then(data=>{console.log(data)
-                        $bvToast.show('example-toast')
+                    .then(data=>{
+                        //console.log(data)
+                        this.showLoader=false
+                        this.account.firstname=null,
+                        this.account.lastname=null,
+                        this.account.openingbalance=null,
+                        this.account.email=null
+                        this.$bvToast.toast(`Account Created`, {
+                        title: 'Success',
+                        autoHideDelay: 5000,
+                        })
                     })
                     .catch(err=>{
-                        $bvToast.show('example-toast2')
+                        this.$bvToast.toast(`Account Not Created`, {
+                        title: 'Failed',
+                        autoHideDelay: 5000,
+                        })
                     })
                 })
                 .catch(err=>{console.log(err)
-                    $bvToast.show('example-toast2')
+                    this.$bvToast.toast(`Account Not Created`, {
+                        title: 'Failed',
+                        autoHideDelay: 5000,
+                        })
                 })
              }
              else{
                 this.$http.post(url,account)
                 .then(data=>{
-                    console.log(data)
-                    $bvToast.show('example-toast')
+                    //console.log(data)
+                    this.showLoader=false
+                    this.account.firstname=null,
+                    this.account.lastname=null,
+                    this.account.openingbalance=null,
+                    this.account.email=null
+                    this.$bvToast.toast(`Account Created`, {
+                        title: 'Success',
+                        autoHideDelay: 5000,
+                        })
                 })
                 .catch(err=>{
-                    $bvToast.show('example-toast2')
+                    this.$bvToast.toast(`Account Not Created`, {
+                        title: 'Failed',
+                        autoHideDelay: 5000,
+                        })
                 })  
              }
-                    // this.$http.post(url,account)
-                    // .then(data=>{
-                    //     console.log(data)
-                    //     $bvToast.show('example-toast')
-                    // })
-                    // .catch(err=>{
-                    //     $bvToast.show('example-toast2')
-                    // })
             },
             selectImage(e){
                 const file = e.target.files[0]
@@ -148,6 +154,7 @@ import axios from 'axios'
 .body {
   height: 100vh;
   position: relative;
+  background-color:#F5F5F5
 }
 
 .form {
@@ -171,5 +178,20 @@ import axios from 'axios'
 img{
     border: 1px solid #17A2B8;
     border-radius:50%
+}
+.loader {
+  border: 10px solid #f3f3f3; /* Light grey */
+  border-top: 10px solid #17A2B8; /* Blue */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+  margin-right:auto;
+  margin-left:auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>

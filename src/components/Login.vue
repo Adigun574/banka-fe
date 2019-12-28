@@ -8,6 +8,7 @@
             <div class="form-group">
                 <input class="form-control" type="password" v-model="user.password" placeholder="password">
             </div>
+            <div class="loader" v-if="showLoader"></div>
             <small class="text-danger" v-if="incorrectCredential">Incorrect login credentials</small><br>
             <button type="submit" class="btn" style="width:300px; background-color:#17A2B8; color:white" v-on:click="post">Login</button><br>
             <small class="text-primary forgot" style="cursor:pointer" v-b-modal.modal-1><a>Forgot your password?</a></small>  
@@ -22,51 +23,70 @@
                 </b-modal>
             </div>     
        </div>
+
     </div>
 </template>
 
 
 <script>
+const api = require('../app')
+
 export default {
     data(){
         return{
             user:{
-                // email:'test',
-                // password:'7030'
-                email:'',
-                password:''
+                email:'adigunadedotun@gmail.com',
+                password:'0000'
             },
             incorrectCredential:false,
-            forgotPasswordEmail:''
+            forgotPasswordEmail:'',
+            showLoader:false
         }
     },
     methods:{
         post(){
             if(this.user.email.length>0 && this.user.password.length>0){
+                this.showLoader=true
                 let user = {
                     email:this.user.email,
                     password:this.user.password
                 }
                 //console.log(user)
-                let url = 'http://localhost:3000/users/login'
+                //let url = 'http://localhost:3000/users/login'
+                let url = `${api}users/login`
                     this.$http.post(url,user)
                     .then(data=>{console.log(data)
-                    if(data.body.success){
+                    if(data.body.success && data.body.data.isadmin){
+                        //console.log(data.body.data.isadmin)
                         localStorage.setItem('user',JSON.stringify(data.body.data))
                         this.$router.push('/allaccounts')
+                    }
+                    else if(data.body.success && !data.body.data.isadmin){
+                        this.$http.post(`${api}/accounts/email`,
+                            {
+                                email:data.body.data.email
+                            }
+                        )
+                        .then(data2=>{
+                            //console.log("account details",data2)
+                            localStorage.setItem('user',JSON.stringify(data.body.data))
+                            this.$router.push(`/viewaccount/${data2.body.data[0].id}`)
+                        })                        
                     }
                     else if(!data.body.success){
                         this.incorrectCredential=true
                     }
                     })
-                    .catch(this.incorrectCredential=true)
+                    .catch(err=>{
+                        this.incorrectCredential=true
+                    })
             }
         },
         resetPassword(){
             let user = {
                 email: this.forgotPasswordEmail
             }
-            let url = 'http://localhost:3000/users/resetpassword'
+            let url = `${api}users/resetpassword`
                     this.$http.post(url,user)
                     .then(data=>{console.log(data)
                     if(data.body.success){
@@ -93,8 +113,12 @@ export default {
                             }) 
                        )
             
+        }        
+    },
+    created(){
+           //alert(`email:adigunibrahim574@gmail.com; 
+           //password:0000`)
         }
-    }
 }
 
 </script>
@@ -130,6 +154,22 @@ export default {
 
 .forgot:hover{
     color:red
+}
+
+.loader {
+  border: 10px solid #f3f3f3; /* Light grey */
+  border-top: 10px solid #17A2B8; /* Blue */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+  margin-right:auto;
+  margin-left:auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 

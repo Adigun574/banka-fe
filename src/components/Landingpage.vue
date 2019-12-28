@@ -1,16 +1,22 @@
 <template>
     <div class="body">
-        <div class="content">
+        <!-- <div class="content">
             <h3 class="banka"><strong>BANKA</strong></h3>
-            <h3 class="text">{{text}}<span class="cursor">|</span></h3>
+            <h3 class="text">{{fullText}}<span class="cursor"></span></h3>
             <h3 class="login" v-on:click="goToLogin"><strong>Login <v-icon name="send" style="width:20px; height:20px"></v-icon></strong></h3>
-       </div>
+       </div> -->
+       <div id="parent">
+            <div id="child">
+                <h3 class="banka"><strong>BANKA</strong><span class="cursor">|</span></h3>
+                <h3 class="login" v-on:click="goToLogin"><strong>Login <v-icon name="send" style="width:20px; height:20px"></v-icon></strong></h3>
+            </div>
+        </div>
     </div>
 </template>
 
 
 <script>
-//import { setInterval } from 'timers';
+
 export default {
     data(){
         return{
@@ -34,12 +40,28 @@ export default {
     },
     created(){
         this.animateText()
+        //alert("username:test,password:7030")
     }
 }
 
 </script>
 
 <style scoped>
+
+#parent {
+  /* height: 200px; */
+  height: 80vh;
+  position: relative;
+}
+
+#child {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
 .content {
   height: 10vh;
   position: relative;
@@ -54,9 +76,11 @@ export default {
   -ms-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
 }
-/* .body{
-    background-image: url('../assets/wallet.png')
-} */
+.body{
+    /* background-image: url('../assets/wallet.png'); */
+    background-image: url('../assets/image3.jpg');
+    height:92vh;
+}
 .body::after {
   content: "";
   background: url('../assets/image3.jpg');
@@ -69,12 +93,13 @@ export default {
   z-index: -1;   
 }
 .banka{
-    font-size: 2.5rem;
+    font-size: 3rem;
     color:#17A2B8;
     width:5em;
     margin-left:auto;
     margin-right:auto;
-    text-shadow: 2px 2px 2px red
+    text-shadow: 2px 2px 2px red;
+    font-family:courier,arial,helvetica;
 }
 .banka:hover{
     color:white;
@@ -105,7 +130,8 @@ export default {
     color:white;
     width:30vw;
     margin:1em auto;
-    text-shadow: 2px 2px 1px black
+    text-shadow: 2px 2px 1px black;
+    text-align: center
 }
 .text:hover{
     color:black;

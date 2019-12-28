@@ -26,7 +26,8 @@
             <input type="file" accept="image/*" @change="selectImage" />
         </div>
         <small class="text-danger" v-if="passwordsMatch">Passwords do not match</small><br>
-        <button type="subimt" class="btn signup" v-on:click="createUser">Signup</button>
+        <div class="loader" v-if="showLoader"></div>
+        <button type="subimt" class="btn signup" v-on:click="createUser">Create User</button>
         </div>
 
 
@@ -44,27 +45,36 @@
 
 <script>
 import axios from 'axios'
+const api = require('../app')
     export default {
         data(){
             return {
                 user: {
-                    firstname:"Ibrahim",
-                    lastname:"Adigun",
-                    email:"test",
-                    username:"adigun",
-                    password:"0000",
+                    // firstname:"Ibrahim",
+                    // lastname:"Adigun",
+                    // email:"test",
+                    // username:"adigun",
+                    // password:"0000",
+                    // img:''
+                    firstname:"",
+                    lastname:"",
+                    email:"",
+                    username:"",
+                    password:"",
                     img:''
                 },
-                password2 :'0000',
+                password2 :'',
                 passwordsMatch:false,
                 item:{
                     image : null,
                     imageUrl: null
-                }
+                },
+                showLoader:false
             };
         },
         methods: {
             createUser(){
+                this.showLoader=true
                 if(this.user.password===this.password2){
                     this.passwordsMatch=false
                     let newUser = {
@@ -75,9 +85,10 @@ import axios from 'axios'
                         password:this.user.password,
                         type:"staff",
                         isAdmin:true,
-                        imgUrl:null
+                        imgUrl:this.user.imgUrl
                     }
-                    let url = 'http://localhost:3000/users/add'
+                    // let url = 'http://localhost:3000/users/add'
+                    let url = `${api}users/add`
                     if(this.image){
                         //image upload
                         const CLOUDINARY_URL="https://api.cloudinary.com/v1_1/dk0ydrw94/upload"
@@ -94,24 +105,64 @@ import axios from 'axios'
                             data:formData
                         })
                         .then(res=>{
-                            console.log(res)
-                            console.log(newUser)
-                            this.newUser.imgUrl=res.data.secure_url
+                            //console.log(res)
+                            //console.log(newUser)
+                            this.user.imgUrl=res.data.secure_url
                             this.$http.post(url,newUser)
-                            .then(data=>{console.log(data)
-                                $bvToast.show('example-toast')
+                            .then(data=>{
+                                //console.log(data)
+                                this.showLoader=false
+                                this.user.firstname=null,
+                                this.user.lastname=null,
+                                this.user.email=null,
+                                this.user.username=null,
+                                this.user.password=null,
+                                this.user.img=null,
+                                this.item.imageUrl=null
+                                this.$bvToast.toast(`User Created`, {
+                                title: 'Success',
+                                autoHideDelay: 5000,
+                                })
                             })
                             .catch(err=>{
-                                $bvToast.show('example-toast2')
+                                this.$bvToast.toast(`User not Created`, {
+                                title: 'Failed',
+                                autoHideDelay: 5000,
+                                })
                             })
                         })
-                        .catch(err=>{console.log(err)
-                            $bvToast.show('example-toast2')
+                        .catch(err=>{
+                            //console.log(err)
+                            this.$bvToast.toast(`User not Created`, {
+                            title: 'Failed',
+                            autoHideDelay: 5000,
+                            })                        
                         })
                     }
                     else{
                       this.$http.post(url,newUser)
-                      .then(data=>{console.log(data)})  
+                      .then(data=>{
+                          this.showLoader=false
+                            this.user.firstname=null,
+                            this.user.lastname=null,
+                            this.user.email=null,
+                            this.user.username=null,
+                            this.user.password=null,
+                            this.user.img=null
+                          //console.log(data)
+                            this.$bvToast.toast(`User Created`, {
+                                title: 'Success',
+                                autoHideDelay: 5000,
+                            })
+                          })  
+                        .catch(err=>{
+                            this.$bvToast.toast(`User not Created`, {
+                                title: 'Failed',
+                                autoHideDelay: 5000,
+                            
+                            })
+                            }
+                        )
                     }
                 }
                 else{
@@ -151,6 +202,7 @@ import axios from 'axios'
 .body {
   height: 100vh;
   position: relative;
+  background-color: #F5F5F5
 }
 
 .form {
@@ -174,6 +226,21 @@ img{
     color:#17A2B8;
     background-color:white;
     border: 1px solid #17A2B8
+}
+.loader {
+  border: 10px solid #f3f3f3; /* Light grey */
+  border-top: 10px solid #17A2B8; /* Blue */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+  margin-right:auto;
+  margin-left:auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>
     

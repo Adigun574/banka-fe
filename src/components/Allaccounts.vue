@@ -2,21 +2,17 @@
     <div>
 
         <div class="accountdetails">
-            <!-- <vc-donut
-                background="white" foreground="grey"
-                :size="200" unit="px" :thickness="30"
-                hasLegend legendPlacement="top"
-                :sections="sections" :total="100"
-            >
-                <h3>Total:{{accounts.length}}</h3>
-            </vc-donut> -->
+            <div>
+                <span style="background-color:#28A745;color:white;padding:5px;border-radius:5px;font-weight:bold">Active Accounts ({{activeAccounts.length}})</span> 
+                <span style="background-color:#DC3545;color:white;padding:5px;border-radius:5px;font-weight:bold">Inactive Accounts ({{accounts.length-activeAccounts.length}})</span>
+            </div>
             <div class="form-row">
                 <div class="form-group mt-4" style="width:60%; margin-right:auto; margin-left:auto">
                     <input type="search" placeholder="Type a search keyword" class="form-control searchInput" 
                     v-on:input="filterTable()" v-model="searchTerm">
                 </div>
                 <div class="form-group" style="width:30%; margin-right:auto; margin-left:auto; margin-top:25px">
-                    <select class="form-control" v-model="filterType" v-on:change="filterTableByStatus">
+                    <select class="form-control" v-model="filterType" v-on:change="filterTableByStatus" value="All Accounts">
                         <option>All Accounts</option>
                         <option>Active Accounts</option>
                         <option>Inactive Accounts</option>
@@ -30,12 +26,15 @@
                 active-tab-class=""
                 style="margin-top:20px"
                 >
-                <b-tab title="Transaction History" active>
-                    <div class="table table-striped table-responsive table-bordere table-hover" 
-                        style="width:100vw; border-lef:5px solid #17A2B8; margin-to:0; display:flex; justify-content:space-around
-                        box-shadow:2px 2px 2px black">
-                            <table>
-                                <thead style="background-color:#17A2B8; color:white">
+                <b-tab title="Accounts" active>
+                    <div style="width:50vw; height:50vh; margin-left:auto; margin-right:auto; opacity:0.7" v-if="filteredAccounts.length===0">
+                        <img src="../assets/undraw_no_data_qbuo.png" alt="image" width="100%" height="100%">
+                    </div>
+                    <div class="table-responsive-sm container"
+                        style="width:100vw; display:flex; justify-content:space-around
+                        box-shadow:2px 2px 2px black;">
+                            <table  class="table table-striped table-hover table-sm table-responsive-sm">
+                                <thead style="background-color:#17A2B8; color:white" clas="thead-dark">
                                     <tr>
                                         <th>S/N</th>
                                         <th>Account Holder</th>
@@ -50,16 +49,16 @@
                                     <td><router-link v-bind:to="'/viewaccount/'+account.id">{{index+1}}</router-link></td>
                                     <td><router-link v-bind:to="'/viewaccount/'+account.id">{{account.owner}}</router-link></td>
                                     <td><router-link v-bind:to="'/viewaccount/'+account.id">{{account.accountnumber}}</router-link></td>
-                                    <td><router-link v-bind:to="'/viewaccount/'+account.id">{{account.balance}}</router-link></td>
+                                    <td><router-link v-bind:to="'/viewaccount/'+account.id">₦{{account.balance}}</router-link></td>
                                     <td><router-link v-bind:to="'/viewaccount/'+account.id">{{account.createdon}}</router-link></td>
-                                    <td><router-link v-bind:to="'/viewaccount/'+account.id"><button class="btn mr-1" style="background-color:#17A2B8; color:white">Transact</button></router-link>
+                                    <td style="display:flex"><router-link v-bind:to="'/viewaccount/'+account.id"><button class="btn mr-1" style="background-color:#17A2B8; color:white">Transact</button></router-link>
                                     <button v-on:click="deactivate(account)" v-if="account.status=='active'" class="btn btn-danger" style="width:100px">deactivate</button><button class="btn btn-success" style="width:100px" v-on:click="activate(account)" v-if="account.status=='inactive'">activate</button></td>
                                 </tr>
                                 </tbody>
                             </table>
                         </div>  
                 </b-tab>
-                <b-tab title="Post Money">
+                <b-tab title="Metrics">
                         <vc-donut
                             background="white" foreground="grey"
                             :size="200" unit="px" :thickness="30"
@@ -69,15 +68,13 @@
                         <h3>Total:{{accounts.length}}</h3>
                         </vc-donut>
                 </b-tab>
-                <b-tab title="Lorem ipsum">
-                    <p>Lorem ipsum</p>
-                </b-tab>
         </b-tabs>
     </div>
 </template>
 
 
 <script>
+const api = require('../app')
 export default {
     data(){
         return{
@@ -91,7 +88,7 @@ export default {
             ],
             searchTerm:'',
             filteredAccounts:[],
-            filterType:''
+            filterType:'All Accounts'
         }
     },
     methods:{
@@ -99,9 +96,10 @@ export default {
             this.selectedAccount=this.accounts.find(x=>{return x.id==id})
         },
         getAccounts(){
-            this.$http.get('http://localhost:3000/accounts')
+            // this.$http.get('http://localhost:3000/accounts')
+            this.$http.get(`${api}accounts`)
             .then(data=>{
-                console.log(data.body)
+                //console.log(data.body)
                 this.accounts=data.body.data
                 this.filteredAccounts=data.body.data
                 this.activeAccounts=this.accounts.filter(x=>{return x.status=="active"})
@@ -116,9 +114,10 @@ export default {
                 accountid:account.id,
                 status:'inactive'
             }
-            this.$http.post('http://localhost:3000/transactions/deactivate',acc)
+            // this.$http.post('http://localhost:3000/transactions/deactivate',acc)
+            this.$http.post(`${api}transactions/deactivate`,acc)
             .then(data=>{
-                console.log(data)
+                //console.log(data)
                 this.getAccounts()})
         },
         activate(account){
@@ -126,13 +125,14 @@ export default {
                 accountid:account.id,
                 status:'active'
             }
-            this.$http.post('http://localhost:3000/transactions/deactivate',acc)
+            // this.$http.post('http://localhost:3000/transactions/deactivate',acc)
+            this.$http.post(`${api}transactions/deactivate`,acc)
             .then(data=>{
-                console.log(data)
+                //console.log(data)
                 this.getAccounts()}) 
         },
         filterTable(){
-            console.log("searcterm",this.searchTerm)
+            //console.log("searcterm",this.searchTerm)
             if(this.searchTerm==''){
                 this.filteredAccounts=this.accounts
             }

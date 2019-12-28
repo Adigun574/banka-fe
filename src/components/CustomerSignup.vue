@@ -25,6 +25,7 @@
                 <div class="form-group">
                     <input type="file" accept="image/*" @change="selectImage"/>
                 </div>
+                <div class="loader" v-if="showLoader"></div>
                 <button type="subimt" class="btn create" v-on:click="post">Create Account</button>
             </div>
         </div> 
@@ -45,6 +46,7 @@
 
 <script>
 import axios from 'axios'
+const api = require('../app')
     export default{
         data(){
             return{
@@ -52,30 +54,47 @@ import axios from 'axios'
                     firstname:"",
                     lastname:"",
                     openingbalance:"",
-                    type:"",
-                    email:""
+                    type:"Savings",
+                    email:"",
+                    password:""
                 },
                 item:{
                     image : null,
                     imageUrl: null
                 },
-                imgUrl:null
+                imgUrl:null,
+                showLoader:false
 
             }
         },
         methods:{
             post(){
+                this.showLoader=true
              let account = {
                  firstname:this.account.firstname,
                  lastname:this.account.lastname,
-                 balance:parseInt(this.account.openingbalance),
+                 balance:0,
                  type:this.account.type,
                  email:this.account.email,
                  imgUrl:null,
-                 password:null
+                 password:this.account.password,
+                 isAdmin:false
              }
-             console.log(account)
-             let url = 'http://localhost:3000/accounts/add'
+             let user = {
+                firstName:this.account.firstname,
+                lastName:this.account.lastname,
+                balance:parseInt(this.account.openingbalance),
+                type:this.account.type,
+                email:this.account.email,
+                imgUrl:null,
+                password:this.account.password,
+                isAdmin:false 
+             }
+             //console.log(account)
+            //  let accountsurl = 'http://localhost:3000/accounts/add'
+            //  let usersurl = 'http://localhost:3000/users/add'
+            let accountsurl = `${api}accounts/add`
+             let usersurl = `${api}users/add`
              if(this.image){
                  //image upload
                 const CLOUDINARY_URL="https://api.cloudinary.com/v1_1/dk0ydrw94/upload"
@@ -91,42 +110,89 @@ import axios from 'axios'
                     },
                     data:formData
                 })
-                .then(res=>{
-                    //this.imgUrl=res.data.secure_url
-                    account.imgUrl=res.data.secure_url
-                    console.log(res)
-                    console.log(account)
-                    console.log("image url",res.data.secure_url)                    
-                    this.$http.post(url,account)
-                    .then(data=>{console.log(data)
-                        $bvToast.show('example-toast')
-                    })
-                    .catch(err=>{
-                        $bvToast.show('example-toast2')
-                    })
-                })
-                .catch(err=>{console.log(err)
-                    $bvToast.show('example-toast2')
-                })
+                .then(
+                    res=>{
+                        user.imgUrl=res.data.secure_url 
+                        this.$http.post(usersurl,user)
+                        .then(data=>{
+                            //console.log(data)
+                        })
+                            .then(res2=>{
+                                account.imgUrl=res.data.secure_url                    
+                                this.$http.post(accountsurl,account)
+                                .then(data=>{
+                                    //console.log(data)
+                                    this.showLoader=false
+                                    this.account.firstname=null,
+                                    this.account.lastname=null,
+                                    this.account.openingbalance=null,
+                                    this.account.email=null,
+                                    this.account.password=null,
+                                    this.item.imgUrl=null
+                                    this.$bvToast.toast(`Account Created`, {
+                                    title: 'Success',
+                                    autoHideDelay: 5000,
+                                    })
+                                })
+                                .catch(err=>{
+                                    //console.log(err)
+                                    this.$bvToast.toast(`Account not Created`, {
+                                    title: 'Failed',
+                                    autoHideDelay: 5000,
+                                    })
+                                })
+                            })
+                            .catch(err=>{
+                                //console.log(err)
+                                this.$bvToast.toast(`Account not Created`, {
+                                    title: 'Failed',
+                                    autoHideDelay: 5000,
+                                })
+                            })
+                        .catch(err=>{
+                            //console.log(err)
+                            this.$bvToast.toast(`Account not Created`, {
+                                    title: 'Failed',
+                                    autoHideDelay: 5000,
+                            })
+                        })
+                    }
+                )
              }
              else{
-                this.$http.post(url,account)
+                 //console.log("no image",account)
+                this.$http.post(usersurl,user)
                 .then(data=>{
-                    console.log(data)
-                    $bvToast.show('example-toast')
+                    //console.log(data)
+                    this.$http.post(accountsurl,account)
+                    .then(data=>{
+                        this.showLoader=false
+                        this.account.firstname=null,
+                        this.account.lastname=null,
+                        this.account.openingbalance=null,
+                        this.account.email=null,
+                        this.account.password=null
+                        this.$bvToast.toast(`Account Created`, {
+                                    title: 'Success',
+                                    autoHideDelay: 5000,
+                        })
+                    })
                 })
                 .catch(err=>{
-                    $bvToast.show('example-toast2')
+                    //console.log(err)
+                    this.$bvToast.toast(`Account not Created`, {
+                                    title: 'Failed',
+                                    autoHideDelay: 5000,
+                    })
+                })
+                //})
+                .catch(err=>{
+                    this.$bvToast.toast(`Account not Created`, {
+                                    title: 'Failed',
+                                    autoHideDelay: 5000,
+                    })
                 })  
              }
-                    // this.$http.post(url,account)
-                    // .then(data=>{
-                    //     console.log(data)
-                    //     $bvToast.show('example-toast')
-                    // })
-                    // .catch(err=>{
-                    //     $bvToast.show('example-toast2')
-                    // })
             },
             selectImage(e){
                 const file = e.target.files[0]
@@ -142,6 +208,7 @@ import axios from 'axios'
 .body {
   height: 100vh;
   position: relative;
+  background-color:#F5F5F5
 }
 
 .form {
@@ -166,4 +233,20 @@ img{
     border: 1px solid #17A2B8;
     border-radius:50%
 }
+.loader {
+  border: 10px solid #f3f3f3; /* Light grey */
+  border-top: 10px solid #17A2B8; /* Blue */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+  margin-right:auto;
+  margin-left:auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 </style>
